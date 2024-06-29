@@ -14,7 +14,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 export default function Result() {
     const router = useRouter();
     const { query } = router; 
-    const eliData = sampleData;
+    const [eliData, setEliData] = useState(sampleData);
     const costGraphData = price_sample;
     const energyGraphData = price_sample;
     const [groupSelection, setGroupSelection] = useState([]);
@@ -23,20 +23,50 @@ export default function Result() {
     const [groupedData, setGroupedData] = useState({});
     const [groupedDataMinPrice, setGroupedDataMinPrice] = useState({});
     const [groupedDataMaxPrice, setGroupedDataMaxPrice] = useState({});
+    const [energyData, setEnergyData] = useState([]);
+
+    const data1 = {
+        labels: energyGraphData.map((key) => key.year),
+        datasets: [
+          {
+            label: 'energy savings',
+            data: energyGraphData.map((key) => key.price),
+            fill: false,
+            backgroundColor: 'rgba(75,192,192,0.4)',
+            borderColor: 'rgba(75,192,192,1)',
+          },
+        ],
+    };
+
+    const data2 = {
+        labels: costGraphData.map((key) => key.year),
+        datasets: [
+          {
+            label: 'cost savings',
+            data: costGraphData.map((key) => key.price),
+            fill: false,
+            backgroundColor: 'rgba(153,102,255,0.4)',
+            borderColor: 'rgba(153,102,255,1)',
+          },
+        ],
+    };
 
     useEffect(() => {
         document.title = "Dashboard";
         
         const key = Object.keys(utility_customer_requirements).find(key => utility_customer_requirements[key] === query.utility_customer_requirements);
         query.utility_customer_requirements = key;
+        query.household_income = parseInt(query.household_income);
+        query.household_size = parseInt(query.household_size);
+        console.log(query);
         // Fetch data
         const options = {
             method: 'POST',
-            url: 'https://api.eli.build/incentives',
+            url: 'api/proxy',
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.ELI_API_KEY || ''}`,
+                Authorization: `Bearer ${process.env.ELI_TOKEN || ''}`,
             },
             data: {
                 address: {zipcode: query.zipcode},
@@ -44,14 +74,14 @@ export default function Result() {
                 household_income: query.household_income,
                 household_size: query.household_size,
                 tax_filing_status: query.tax_filing_status,
-                utility_customer_requirements: query.utility_customer_requirements,
+                utility_customer_requirements: [query.utility_customer_requirements],
             }
         };
-        console.log(JSON.stringify(options, null, 2));
         axios
             .request(options)
             .then(function (response) {
                 console.log(JSON.stringify(response.data));
+                setEliData(response.data);
             })
             .catch(function (error) {
                 console.error(error);
@@ -79,37 +109,11 @@ export default function Result() {
         setGroupedDataMinPrice(newGroupedDataMinPrice);
         setGroupedDataMaxPrice(newGroupedDataMaxPrice);
 
-        // Sort GroupedData, GroupedDataMinPrice, and GroupedDataMaxPrice in descending order of GroupedMaxPriceData
-
         eliData.incentives.sort((a, b) => b.max_amount - a.max_amount);
+        const sortedEliData = eliData.incentives.sort((a, b) => b.max_amount - a.max_amount);
+        setEliData({ ...eliData, incentives: sortedEliData });
         
     }, [query]);
-
-    const data1 = {
-        labels: energyGraphData.map((key) => key.year),
-        datasets: [
-          {
-            label: 'energy savings',
-            data: energyGraphData.map((key) => key.price),
-            fill: false,
-            backgroundColor: 'rgba(75,192,192,0.4)',
-            borderColor: 'rgba(75,192,192,1)',
-          },
-        ],
-    };
-
-    const data2 = {
-        labels: costGraphData.map((key) => key.year),
-        datasets: [
-          {
-            label: 'cost savings',
-            data: costGraphData.map((key) => key.price),
-            fill: false,
-            backgroundColor: 'rgba(153,102,255,0.4)',
-            borderColor: 'rgba(153,102,255,1)',
-          },
-        ],
-    };
 
     // Function to toggle selection
     const toggleSelection = (name) => {
@@ -139,36 +143,41 @@ export default function Result() {
         
         {/* Right side */}
         <div style={{ flex: 2, padding: '20px' }}>
-          <h2>Data and Graphs</h2>
-          <div style={{ marginTop: '20px' }}>
-            <h3>Energy Savings</h3>
-            <Line data={data1} />
-          </div>
-          <div style={{ marginTop: '20px' }}>
-            <h3>Cost Savings</h3>
-            <Line data={data2} />
-          </div>
-          <div>
-          <h3>Data</h3>
-            {groupSelection.length > 0 ? (
-                <div>
-                    {eliData.incentives.map((incentive, index) => {
-                        if (groupSelection.includes(measureGroupNames[incentive.upgrade_measure_groups[0].slug])) {
-                            return (
-                                <div key={index} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}>
-                                    <h4>{incentive.title}</h4>
-                                    <p>{incentive.name}</p>
-                                    <p>Min Amount: ${incentive.min_amount/100}</p>
-                                    <p>Max Amount: ${incentive.max_amount/100}</p>
-                                </div>
-                            );
-                        }
-                    })}
+            <h2 style={{ textAlign: 'center' }}> Graphs </h2>
+            <div style={{ marginTop: '20px' }}>
+                <h3> Energy Savings </h3>
+                <div style={{ width: '50%', height: '300px', margin: '0 auto' }}>
+                    <Line data={data1} />
                 </div>
-            ) : (
-                <p>No group selected.</p>
-            )}
-          </div>
+            </div>
+            <div style={{ marginTop: '20px' }}>
+                <h3> Cost Savings </h3>
+                <div style={{ width: '50%', height: '300px', margin: '0 auto' }}>
+                    <Line data={data2} />
+                </div>
+            </div>
+            <hr />
+            <div>
+                <h2 style={{ textAlign: 'center' }}> Incentives </h2>
+                    {groupSelection.length > 0 ? (
+                    <div>
+                        {eliData.incentives.map((incentive, index) => {
+                            if (groupSelection.includes(measureGroupNames[incentive.upgrade_measure_groups[0].slug])) {
+                                return (
+                                    <div key={index} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginBottom: '10px' }}>
+                                        <h4>{incentive.title}</h4>
+                                        <p>{incentive.name}</p>
+                                        <p>Min Amount: ${incentive.min_amount/100}</p>
+                                        <p>Max Amount: ${incentive.max_amount/100}</p>
+                                    </div>
+                                );
+                            }
+                        })}
+                    </div>
+                ) : (
+                    <p>No group selected.</p>
+                )}
+            </div>
         </div>
       </div>
     );
