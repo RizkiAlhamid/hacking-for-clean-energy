@@ -80,6 +80,28 @@ export default function Result() {
         );
     }
 
+    const fetchApplianceData = async () => {
+        const options = {
+            method: 'GET',
+            url: 'api/cost_estimate/proxy',
+            headers: {
+                'content-type': 'application/json',
+            },
+            params: {
+                zipcode: parseInt(query.zipcode),
+                appliance: query.appliance,
+            },
+        };
+        console.log(options.params);
+        try {
+            const response = await axios.request(options);
+            console.log(JSON.stringify(response.data));
+            setEnergyData(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     const fetchGraphData = async () => {
         const options = {
             method: 'GET',
@@ -232,7 +254,7 @@ export default function Result() {
             <h2>Incentive Group List</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {Object.entries(measureGroupNames).map(([slug, name]) => (
-                    <div key={slug} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', backgroundColor: groupSelection.includes(name) ? 'lightblue' : 'white' }} onClick={() => toggleSelection(name)}>
+                    <div key={slug} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', backgroundColor: groupSelection.includes(name) ? 'lightblue' : 'white' }} onClick={() => {toggleSelection(name); fetchApplianceData();}}>
                         <h3>{name}</h3>
                         <p>
                             Incentive available: ${groupedDataMinPrice[name]} - ${groupedDataMaxPrice[name]}
