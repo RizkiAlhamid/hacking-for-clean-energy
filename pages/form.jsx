@@ -1,15 +1,25 @@
 "use client"
-import { useState } from 'react';
+import utility_customer_requirements from "@/utils/enum";
 
 function NextPageForm({ formData, setFormData, handleSubmit }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
         setFormData({
             ...formData,
             [name]: value
         });
     };
+
+    const handleUtilityCustomerRequirements = (e) => {
+        const { name, value } = e.target;
+
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    }
 
     return (
         <div className="max-w-lg mx-auto bg-white p-6 rounded shadow-md">
@@ -27,44 +37,49 @@ function NextPageForm({ formData, setFormData, handleSubmit }) {
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="utilityProvider" className="block text-sm font-medium text-gray-700">Utility Provider</label>
+                    <label htmlFor="utility_customer_requirements" className="block text-sm font-medium text-gray-700">Utility Provider</label>
+                    <select
+                        id="utility_customer_requirements"
+                        name="utility_customer_requirements"
+                        value={formData.utility_customer_requirements}
+                        onChange={handleUtilityCustomerRequirements}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    >
+                        {Object.keys(utility_customer_requirements).map((key) => (
+                            <option key={key} value={utility_customer_requirements[key]}>
+                                {utility_customer_requirements[key]}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="household_income" className="block text-sm font-medium text-gray-700">Household Income</label>
                     <input
                         type="text"
-                        id="utilityProvider"
-                        name="utilityProvider"
-                        value={formData.utilityProvider}
+                        id="household_income"
+                        name="household_income"
+                        value={formData.household_income}
                         onChange={handleChange}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="householdIncome" className="block text-sm font-medium text-gray-700">Household Income</label>
-                    <input
-                        type="text"
-                        id="householdIncome"
-                        name="householdIncome"
-                        value={formData.householdIncome}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="peopleInHousehold" className="block text-sm font-medium text-gray-700">Number of People in Household</label>
+                    <label htmlFor="household_size" className="block text-sm font-medium text-gray-700">Number of People in Household</label>
                     <input
                         type="number"
-                        id="peopleInHousehold"
-                        name="peopleInHousehold"
-                        value={formData.peopleInHousehold}
+                        id="household_size"
+                        name="household_size"
+                        value={formData.household_size}
                         onChange={handleChange}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="taxFilingStatus" className="block text-sm font-medium text-gray-700">Tax Filing Status</label>
+                    <label htmlFor="tax_filling_status" className="block text-sm font-medium text-gray-700">Tax Filing Status</label>
                     <select
-                        id="taxFilingStatus"
-                        name="taxFilingStatus"
-                        value={formData.taxFilingStatus}
+                        id="tax_filling_status"
+                        name="tax_filling_status"
+                        value={formData.tax_filling_status}
                         onChange={handleChange}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
@@ -74,11 +89,11 @@ function NextPageForm({ formData, setFormData, handleSubmit }) {
                     </select>
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="propertyType" className="block text-sm font-medium text-gray-700">Property Type</label>
+                    <label htmlFor="property_type" className="block text-sm font-medium text-gray-700">Property Type</label>
                     <select
-                        id="propertyType"
-                        name="propertyType"
-                        value={formData.propertyType}
+                        id="property_type"
+                        name="property_type"
+                        value={formData.property_type}
                         onChange={handleChange}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
