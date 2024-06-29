@@ -15,7 +15,7 @@ export default function Result() {
     const router = useRouter();
     const { query } = router; 
     const [eliData, setEliData] = useState(sampleData);
-    const costGraphData = price_sample;
+    // const costGraphData = price_sample;
     // const energyGraphData = price_sample;
     const [groupSelection, setGroupSelection] = useState([]);
 
@@ -24,12 +24,12 @@ export default function Result() {
     const [groupedDataMinPrice, setGroupedDataMinPrice] = useState({});
     const [groupedDataMaxPrice, setGroupedDataMaxPrice] = useState({});
     const [energyData, setEnergyData] = useState([]);
-    const [energyGraphData, setEnergyGraphData] = useState({
+    const [costGraphData, setCostGraphData] = useState({
         labels: [1,2,3,4,5],
         datasets: [
           {
-            label: 'energy savings',
-            data: [1,2,3,4,5],
+            label: 'cost savings',
+            data: [1,1,1,1,1],
             fill: false,
             backgroundColor: 'rgba(75,192,192,0.4)',
             borderColor: 'rgba(75,192,192,1)',
@@ -37,31 +37,18 @@ export default function Result() {
         ],
     });
 
-    // const data1 = {
-    //     labels: energyGraphData.map((key) => key.year),
-    //     datasets: [
-    //       {
-    //         label: 'energy savings',
-    //         data: energyGraphData.map((key) => key.price),
-    //         fill: false,
-    //         backgroundColor: 'rgba(75,192,192,0.4)',
-    //         borderColor: 'rgba(75,192,192,1)',
-    //       },
-    //     ],
-    // };
-
-    const data2 = {
-        labels: costGraphData.map((key) => key.year),
+    const [energyGraphData, setEnergyGraphData] = useState({
+        labels: [1,2,3,4,5],
         datasets: [
           {
-            label: 'cost savings',
-            data: costGraphData.map((key) => key.price),
+            label: 'energy savings',
+            data: [1,1,1,1,1],
             fill: false,
-            backgroundColor: 'rgba(153,102,255,0.4)',
-            borderColor: 'rgba(153,102,255,1)',
+            backgroundColor: 'rgba(75,192,192,0.4)',
+            borderColor: 'rgba(75,192,192,1)',
           },
         ],
-    };
+    });
 
     const fetchEliData = async () => {
         const options = {
@@ -156,30 +143,76 @@ export default function Result() {
         
     }, [query]);
 
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
+
     useEffect(() => {
-        console.log(groupSelection);
-        console.log(energyData["cost_data"])
+        // console.log(groupSelection);
+        // console.log(energyData["cost_data"])
         if (energyData["cost_data"] === undefined) {
             return;
         }
         const selected_slugs = groupSelection.map((name) => Object.keys(measureGroupNames).find(key => measureGroupNames[key] === name));
         const Interventions = energyData["cost_data"];
-        console.log(Interventions);
+        const transformedData = {};
+        Interventions.forEach((item) => {
+            const intervention = item.Intervention;
+            const years = [];
+            for (let i = 0; i <= 10; i++) {
+                const yearKey = `Year_${i}`;
+                years.push(item[yearKey]);
+            }
+            transformedData[intervention] = years;
+        });
+        // console.log(transformedData);
         
-        const newGraphData = {
-            labels: [0,1,2,3,4,5,6,7,8,9,10],
-            datasets: [
-                {
-                    label: 'energy savings',
-                    data: [1,2,43,5,6,5],
+        const newCostGraphData = {
+            labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            datasets: Object.keys(transformedData).filter(key => selected_slugs.includes(key)).map(key => {
+                const color = getRandomColor();
+                return {
+                    label: key,
+                    data: transformedData[key],
                     fill: false,
-                    backgroundColor: 'rgba(75,192,192,0.4)',
-                    borderColor: 'rgba(75,192,192,1)',
-                }
-            ],
+                    backgroundColor: color,
+                    borderColor: color,
+                };
+            })
         };
-        setEnergyGraphData(newGraphData);
-        // console.log(newGraphData);
+        setCostGraphData(newCostGraphData);
+
+        const energyInterventions = energyData["power_data"];
+        const transformedEnergyData = {};
+        energyInterventions.forEach((item) => {
+            const intervention = item.Intervention;
+            const years = [];
+            for (let i = 0; i <= 10; i++) {
+                const yearKey = `Year_${i}`;
+                years.push(item[yearKey]);
+            }
+            transformedEnergyData[intervention] = years;
+        });
+        console.log("Transformed Energy Data: ", transformedEnergyData);
+        const newEnergyGraphData = {
+            labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            datasets: Object.keys(transformedEnergyData).filter(key => selected_slugs.includes(key)).map(key => {
+                const color = getRandomColor();
+                return {
+                    label: key,
+                    data: transformedEnergyData[key],
+                    fill: false,
+                    backgroundColor: color,
+                    borderColor: color,
+                };
+            })
+        };
+        setEnergyGraphData(newEnergyGraphData);
 
     }, [groupSelection]);
 
@@ -221,7 +254,7 @@ export default function Result() {
             <div style={{ marginTop: '20px' }}>
                 <h3> Cost Savings </h3>
                 <div style={{ width: '50%', height: '300px', margin: '0 auto' }}>
-                    <Line data={data2} />
+                    <Line data={costGraphData} />
                 </div>
             </div>
             <hr />
