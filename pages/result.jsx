@@ -159,18 +159,23 @@ export default function Result() {
     useEffect(() => {
         console.log(groupSelection);
         console.log(energyData["cost_data"])
+        if (energyData["cost_data"] === undefined) {
+            return;
+        }
         const selected_slugs = groupSelection.map((name) => Object.keys(measureGroupNames).find(key => measureGroupNames[key] === name));
-        console.log(selected_slugs);
+        const Interventions = energyData["cost_data"];
+        console.log(Interventions);
+        
         const newGraphData = {
             labels: [0,1,2,3,4,5,6,7,8,9,10],
             datasets: [
-              {
-                label: 'energy savings',
-                data: [0,1,2,3,4,5,6,7,8,9,10],
-                fill: false,
-                backgroundColor: 'rgba(75,192,192,0.4)',
-                borderColor: 'rgba(75,192,192,1)',
-              },
+                {
+                    label: 'energy savings',
+                    data: [1,2,43,5,6,5],
+                    fill: false,
+                    backgroundColor: 'rgba(75,192,192,0.4)',
+                    borderColor: 'rgba(75,192,192,1)',
+                }
             ],
         };
         setEnergyGraphData(newGraphData);
