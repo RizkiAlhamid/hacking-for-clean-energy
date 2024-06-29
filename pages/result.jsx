@@ -51,15 +51,7 @@ export default function Result() {
         ],
     };
 
-    useEffect(() => {
-        document.title = "Dashboard";
-        
-        const key = Object.keys(utility_customer_requirements).find(key => utility_customer_requirements[key] === query.utility_customer_requirements);
-        query.utility_customer_requirements = key;
-        query.household_income = parseInt(query.household_income);
-        query.household_size = parseInt(query.household_size);
-        console.log(query);
-        // Fetch data
+    const fetchEliData = async () => {
         const options = {
             method: 'POST',
             url: 'api/proxy',
@@ -80,12 +72,25 @@ export default function Result() {
         axios
             .request(options)
             .then(function (response) {
-                console.log(JSON.stringify(response.data));
+                // console.log(JSON.stringify(response.data));
                 setEliData(response.data);
             })
             .catch(function (error) {
                 console.error(error);
-            });
+            }
+        );
+    }
+
+    useEffect(() => {
+        document.title = "Dashboard";
+        
+        const key = Object.keys(utility_customer_requirements).find(key => utility_customer_requirements[key] === query.utility_customer_requirements);
+        query.utility_customer_requirements = key;
+        query.household_income = parseInt(query.household_income);
+        query.household_size = parseInt(query.household_size);
+        console.log(query);
+        // Fetch data
+        fetchEliData();
         
         const newGroupedData = {};
         const newGroupedDataMinPrice = {};
