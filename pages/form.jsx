@@ -1,10 +1,7 @@
 "use client"
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 
 function NextPageForm() {
-    const router = useRouter();
-    const { selection } = router.query;
    
     const [formData, setFormData] = useState({
         zipcode: '',

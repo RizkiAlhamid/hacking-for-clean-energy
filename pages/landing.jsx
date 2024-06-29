@@ -1,7 +1,6 @@
 "use client"
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Router from 'next/router';
 
 const InterestSelection = () => {
     const [selectedOption, setSelectedOption] = useState('');
@@ -12,10 +11,7 @@ const InterestSelection = () => {
 
     const handleNext = () => {
         // Navigate to the next page with selectedOption data
-        Router.push({
-            pathname: '/next-page',
-            query: { selection: selectedOption },
-        });
+       
     };
 
     return (
@@ -36,11 +32,9 @@ const InterestSelection = () => {
                 </button>
             </div>
             {selectedOption && (
-                <div className="mt-8">
-                    {/* Use Link directly without wrapping in <a> tag */}
-                    <Link href="/next-page">
-                    </Link>
-                </div>
+                <Link href="/form">
+                    Next
+                </Link>
             )}
         </div>
     );
