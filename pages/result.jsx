@@ -50,6 +50,7 @@ export default function Result() {
         ],
     });
 
+    const [applianceData, setApplianceData] = useState({});
     const fetchEliData = async () => {
         const options = {
             method: 'POST',
@@ -89,14 +90,14 @@ export default function Result() {
             },
             params: {
                 zipcode: parseInt(query.zipcode),
-                appliance: query.appliance,
+                appliance: groupSelection ? groupSelection[0] : "",
             },
         };
         console.log(options.params);
         try {
             const response = await axios.request(options);
             console.log(JSON.stringify(response.data));
-            setEnergyData(response.data);
+            setApplianceData(response.data);
         } catch (error) {
             console.error(error);
         }
@@ -136,7 +137,7 @@ export default function Result() {
         // Fetch data
         fetchEliData();
         fetchGraphData();
-        
+        fetchApplianceData();
         const newGroupedData = {};
         const newGroupedDataMinPrice = {};
         const newGroupedDataMaxPrice = {};
@@ -183,6 +184,7 @@ export default function Result() {
         const selected_slugs = groupSelection.map((name) => Object.keys(measureGroupNames).find(key => measureGroupNames[key] === name));
         const Interventions = energyData["cost_data"];
         const transformedData = {};
+
         Interventions.forEach((item) => {
             const intervention = item.Intervention;
             const years = [];
@@ -254,7 +256,7 @@ export default function Result() {
             <h2>Incentive Group List</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {Object.entries(measureGroupNames).map(([slug, name]) => (
-                    <div key={slug} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', backgroundColor: groupSelection.includes(name) ? 'lightblue' : 'white' }} onClick={() => {toggleSelection(name); fetchApplianceData();}}>
+                    <div key={slug} style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', backgroundColor: groupSelection.includes(name) ? 'lightblue' : 'white' }} onClick={() => toggleSelection(name)}>
                         <h3>{name}</h3>
                         <p>
                             Incentive available: ${groupedDataMinPrice[name]} - ${groupedDataMaxPrice[name]}
@@ -300,6 +302,14 @@ export default function Result() {
                 ) : (
                     <p>No group selected.</p>
                 )}
+                <div style={{ marginTop: '20px', background: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
+                <h3>Appliances Cost:</h3>
+                {applianceData !== null || applianceData == {} ? (
+                    <pre>{JSON.stringify(applianceData, null, 2)}</pre>
+                ) : (
+                    <p>Loading...</p>
+                )}
+            </div>
             </div>
         </div>
       </div>
