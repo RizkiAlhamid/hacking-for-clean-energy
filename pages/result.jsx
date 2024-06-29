@@ -16,7 +16,7 @@ export default function Result() {
     const { query } = router; 
     const [eliData, setEliData] = useState(sampleData);
     const costGraphData = price_sample;
-    const energyGraphData = price_sample;
+    // const energyGraphData = price_sample;
     const [groupSelection, setGroupSelection] = useState([]);
 
     // Grouped data state variables
@@ -24,19 +24,31 @@ export default function Result() {
     const [groupedDataMinPrice, setGroupedDataMinPrice] = useState({});
     const [groupedDataMaxPrice, setGroupedDataMaxPrice] = useState({});
     const [energyData, setEnergyData] = useState([]);
-
-    const data1 = {
-        labels: energyGraphData.map((key) => key.year),
+    const [energyGraphData, setEnergyGraphData] = useState({
+        labels: [1,2,3,4,5],
         datasets: [
           {
             label: 'energy savings',
-            data: energyGraphData.map((key) => key.price),
+            data: [1,2,3,4,5],
             fill: false,
             backgroundColor: 'rgba(75,192,192,0.4)',
             borderColor: 'rgba(75,192,192,1)',
           },
         ],
-    };
+    });
+
+    // const data1 = {
+    //     labels: energyGraphData.map((key) => key.year),
+    //     datasets: [
+    //       {
+    //         label: 'energy savings',
+    //         data: energyGraphData.map((key) => key.price),
+    //         fill: false,
+    //         backgroundColor: 'rgba(75,192,192,0.4)',
+    //         borderColor: 'rgba(75,192,192,1)',
+    //       },
+    //     ],
+    // };
 
     const data2 = {
         labels: costGraphData.map((key) => key.year),
@@ -81,6 +93,29 @@ export default function Result() {
         );
     }
 
+    const fetchGraphData = async () => {
+        const options = {
+            method: 'GET',
+            url: 'api/graph/proxy',
+            headers: {
+                'content-type': 'application/json',
+            },
+            params: {
+                zipcode: parseInt(query.zipcode),
+                household_income: query.household_income,
+                household_size: query.household_size,
+            },
+        };
+        console.log(options.params);
+        try {
+            const response = await axios.request(options);
+            // console.log(JSON.stringify(response.data));
+            setEnergyData(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     useEffect(() => {
         document.title = "Dashboard";
         
@@ -91,6 +126,7 @@ export default function Result() {
         console.log(query);
         // Fetch data
         fetchEliData();
+        fetchGraphData();
         
         const newGroupedData = {};
         const newGroupedDataMinPrice = {};
@@ -119,6 +155,28 @@ export default function Result() {
         setEliData({ ...eliData, incentives: sortedEliData });
         
     }, [query]);
+
+    useEffect(() => {
+        console.log(groupSelection);
+        console.log(energyData["cost_data"])
+        const selected_slugs = groupSelection.map((name) => Object.keys(measureGroupNames).find(key => measureGroupNames[key] === name));
+        console.log(selected_slugs);
+        const newGraphData = {
+            labels: [0,1,2,3,4,5,6,7,8,9,10],
+            datasets: [
+              {
+                label: 'energy savings',
+                data: [0,1,2,3,4,5,6,7,8,9,10],
+                fill: false,
+                backgroundColor: 'rgba(75,192,192,0.4)',
+                borderColor: 'rgba(75,192,192,1)',
+              },
+            ],
+        };
+        setEnergyGraphData(newGraphData);
+        // console.log(newGraphData);
+
+    }, [groupSelection]);
 
     // Function to toggle selection
     const toggleSelection = (name) => {
@@ -152,7 +210,7 @@ export default function Result() {
             <div style={{ marginTop: '20px' }}>
                 <h3> Energy Savings </h3>
                 <div style={{ width: '50%', height: '300px', margin: '0 auto' }}>
-                    <Line data={data1} />
+                    <Line data={energyGraphData} />
                 </div>
             </div>
             <div style={{ marginTop: '20px' }}>
