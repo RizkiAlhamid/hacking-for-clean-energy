@@ -1,17 +1,10 @@
 "use client"
 import React, { useState } from 'react';
-import Link from 'next/link';
 
-const InterestSelection = () => {
-    const [selectedOption, setSelectedOption] = useState('');
+const InterestSelection = ({ selectedOption, setSelectedOption }) => {
 
     const handleOptionSelect = (option) => {
         setSelectedOption(option);
-    };
-
-    const handleNext = () => {
-        // Navigate to the next page with selectedOption data
-       
     };
 
     return (
@@ -31,11 +24,6 @@ const InterestSelection = () => {
                     I have a specific project that needs incentives
                 </button>
             </div>
-            {selectedOption && (
-                <Link href="/form">
-                    Next
-                </Link>
-            )}
         </div>
     );
 };

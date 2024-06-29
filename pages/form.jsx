@@ -1,16 +1,7 @@
 "use client"
 import { useState } from 'react';
 
-function NextPageForm() {
-   
-    const [formData, setFormData] = useState({
-        zipcode: '',
-        utilityProvider: '',
-        householdIncome: '',
-        peopleInHousehold: '',
-        taxFilingStatus: 'individual',
-        propertyType: 'single_family'
-    });
+function NextPageForm({ formData, setFormData, handleSubmit }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -18,14 +9,6 @@ function NextPageForm() {
             ...formData,
             [name]: value
         });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(formData);
-        // Example: you can navigate to next page programmatically
-        // Replace this with your navigation logic
-        // router.push('/next-page');
     };
 
     return (
@@ -108,7 +91,7 @@ function NextPageForm() {
                         type="submit"
                         className="w-full bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600"
                     >
-                        Next
+                        Submit
                     </button>
                 </div>
             </form>
